@@ -1,0 +1,237 @@
+.App {
+  text-align: center;
+  background-image: url('./bg-2.webp');
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+  background-position: center;
+  background-repeat: repeat;
+  background-size: cover;
+  padding-bottom: 60px;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.weather-box{
+  background: #6915789c;
+    width: 100%;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 9px;
+    box-shadow: 0px 0px 12px 0px black;
+}
+
+.g-dropdown{
+  background: white;
+    width: 24%;
+    margin-left: 38%;
+    max-height: 192px;
+    text-align: left;
+    margin-top: -2px;
+    border-radius: 1px;
+    padding: 11px;
+    border-radius: 0px 0px 8px 8px;
+}
+
+.ul-style li{
+  line-height: 14px;
+  margin-bottom: 9px;
+  padding: 5px;
+}
+
+.ul-style li:hover{
+  background-color: lightblue;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.card-background{
+  background: #fdfdfd9c;
+}
+
+.activeTime{
+  background-color: rgb(209 231 212);
+    font-weight: 500;
+    color: green;
+}
+.table-overflow{
+  height: 250px;
+  overflow: auto;
+}
+
+
+.weather-box-layout{
+    background: #2e2e2e54;
+    padding: 6px;
+    border-radius: 7px;
+    color: white;
+}
+
+.back-btn{
+  position: absolute;
+    right: 60px;
+    top: 31px;
+    font-size: 13px;
+    background: purple;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 4px;
+}
+
+.weather-box-layout h4 {
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 14px;
+  color: rgb(0 15 54);
+}
+
+.footer{
+    background: white;
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+}
+
+
+#flip {
+  height:60px;
+  overflow:hidden;
+  padding: 27px 0px 64px 0px;
+}
+
+#flip > div > div {
+  color:#fff;
+  padding:4px 12px;
+  height:40px;
+ 
+  margin-bottom:50px;
+  display:inline-block;
+}
+
+#flip div:first-child {
+  margin-top: 10px;
+  animation: show 5s linear infinite;
+}
+
+
+
+@keyframes show {
+  0% {margin-top:-250px;}
+  5% {margin-top:-180px;}
+  33% {margin-top:-180px;}
+  38% {margin-top:-90px;}
+  66% {margin-top:-90px;}
+  71% {margin-top:0px;}
+  99.99% {margin-top:0px;}
+  100% {margin-top:-270px;}
+}
+
+.desktop-view{
+  display: initial;
+}
+.mobile-view{
+  display: none;
+}
+
+
+@media (max-width :680px){
+
+  .desktop-view{
+    display: none;
+  }
+  .mobile-view {
+    display: initial;
+  }
+  .grid-layout-for-sm{
+    background: #08080869;
+    margin-top: 31px;
+    margin-bottom: 36px;
+    padding-bottom: 33px;
+  }
+  .weather-box{
+    background: #6915789c;
+      width: 80%;
+      padding: 5px 10px;
+      margin-left: 12%;
+      margin-top: 20px;
+      border-radius: 9px;
+      box-shadow: 0px 0px 12px 0px black;
+  }
+  .mobile-padding{
+    padding-bottom: 50px !important;
+  }
+
+  table th {
+    white-space: nowrap;
+  }
+  table td {
+    white-space: nowrap;
+  }
+
+
+  input{
+    width: 80% !important;
+  }
+
+  .back-btn{
+    position: absolute;
+      right: 21px;
+      top: 31px;
+      font-size: 12px;
+      background: purple;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 4px;
+  }
+  .ul-style li{
+    line-height: 13px;
+    margin-bottom: 9px;
+    padding: 4px;
+    font-size: 13px;
+  }
+  .g-dropdown{
+    background: white;
+      width: 80%;
+      margin-left: 10%;
+      max-height: 180px;
+      text-align: left;
+      margin-top: -2px;
+      border-radius: 1px;
+      padding: 11px;
+      border-radius: 0px 0px 8px 8px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
