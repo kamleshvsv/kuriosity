@@ -1,11 +1,10 @@
 // http://api.weatherapi.com/v1/current.json?key=1668ec30414f43a5a55121411221310&q=indore
 
 import http from "./http-common";
-const privateKey = "1668ec30414f43a5a55121411221310";
-class ApiServices {
-   
-    
+// const privateKey = "1668ec30414f43a5a55121411221310";
+const privateKey = "014be7fc2e3640ea9f043316222810";
 
+class ApiServices {
 
     getCurrentWeather(city) {
         return http.get(`/current.json?key=${privateKey}&q=${city}`);
@@ -30,10 +29,6 @@ class ApiServices {
     futureWeather(next) {
         return http.get(`/future.json?key=${privateKey}&q=${next}`);
     }
-
-
-   
-
 
 }
 

@@ -3,23 +3,36 @@ import { useNavigate, useParams } from "react-router-dom";
 import apiService from './../service/apiService';
 import sideImage from './../OKYJ1L0.jpg'
 export default function SeprateWeather() {
+  const [currentDate, setCurrentDate] = useState('')
   const [forcastData, setForcastData] = useState([])
+  const [sessionData, setSessionData] = useState([])
   const params = useParams()
   const navigate = useNavigate()
   const [error, showError] = useState(false)
 
   useEffect(()=> {
+    let date = new Date()
+    var datestring = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()  + " " +
+    date.getHours() + ":" + date.getMinutes();
+    setCurrentDate(date.getHours())
+
     if(localStorage.getItem('sessionData')){
       var  sessionArray = JSON.parse(localStorage.getItem('sessionData'))
      for(let i = 0; i < sessionArray.length; i ++){
       if(sessionArray[i] === params.name){
         getCurrentForecastStatus(params.name)
-
-       
       }else{
         var empArr = []
         empArr.push(params.name)
         var finalArr = empArr.concat(sessionArray.filter((item) => empArr.indexOf(item) < 0));
+        let date = new Date();
+        // console.log(date, "its current date Or timee")
+        finalArr.map((item) => {
+          if(item.urrentTimeZone === date){
+
+          }
+        })
+
        getCurrentForecastStatus(params.name)
         localStorage.setItem('sessionData', JSON.stringify(finalArr))
       }
@@ -46,6 +59,10 @@ export default function SeprateWeather() {
     .then((res)=> {
         if(res.status === 200){
           setForcastData(res.data)
+          initRecent()
+          // if(localStorage.getItem('sessionData')){
+          // initRecent()
+          // }
         }
     }).catch((err)=>{
         removeUnMatchingData(params.name)
@@ -79,6 +96,7 @@ const removeUnMatchingData = (name) => {
 const charecterInd = (data) => { 
   var final = [];
  let t = data.split(' ')[1].toString().split(':')[0]
+
  if(t.charAt(0) === '0'){
  var i = t.substring(1)
   final.push(i)
@@ -86,8 +104,44 @@ const charecterInd = (data) => {
   final.push(t)
  }
   return final.toString();
-
 }
+
+const initRecent = () => {
+  if(localStorage.getItem('sessionData')){
+      var name = JSON.parse(localStorage.getItem('sessionData'))
+      console.log(name , "before")
+      const index = name.indexOf(params.name);
+if (index > -1) { // only splice array when item is found
+  name.splice(index, 1); // 2nd parameter means remove one item only
+}
+console.log(name, "after")
+      getRecentSearchHistory(name)
+   
+  }else{
+    console.log("No Search Record found")
+  }
+}
+
+
+//Get Recend History 
+const getRecentSearchHistory = async (name) => {
+  const getResponse =  await Promise.all(
+      name.map(async (name) => {
+        const response = await apiService.getForCast(name).then(res => { 
+          return res.data; 
+         })
+        .catch((error) => {
+           console.log(`ERROR: ${error}`);
+        });;
+        return await response;
+      })
+    );
+    setSessionData(getResponse)
+    console.log(getResponse, "heyy")
+}
+
+
+
     return (
      <> 
      <button className="back-btn" onClick={()=> {
@@ -196,7 +250,9 @@ const charecterInd = (data) => {
                           <tbody >
                           {forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].hour.map((hour, ind)=> (
 
-                                      <tr  key={ind} className={`${charecterInd(hour.time) === forcastData.location.localtime.split(' ')[1].toString().split(':')[0]? "activeTime" : ""}`}>
+                                      <tr  key={ind} 
+                                      className={`${charecterInd(hour.time) === currentDate.toString() ? "activeTime" : ""}`}
+                                      >
                                           {hour.condition ? ( <td className="py-1 px-1 flex">
                                                 <img src={hour.condition.icon} alt="condition" width={20} /> {hour.condition.text}</td> ) : ""}
                                           <td className="py-1 px-1">{hour.time}</td>
@@ -226,6 +282,131 @@ const charecterInd = (data) => {
             </div>
         </div>
       </div>
+      <h2 className="text-left text-white p-10">Recent Search History</h2>
+      {sessionData.map((session, i)=> (
+      <div className="flex px-10 md:px-10 sm:px-6 mt-2 border-solid border-2 border-indigo-600 ">
+        <div key={i} className="w-8/12 md:w-8/12 sm:w-full" style={{margin:"5px"}}>
+        < >
+              <div className="card-background p-3 rounded"  style={{backgroundImage : `url(${session.forecast.forecastday[0].day.condition.icon})`, backgroundPosition:"center",backgroundSize:"contain", backgroundRepeat:"no-repeat", backgroundPositionX:"right"}}>
+                <h4 className="text-left">Current Weather   
+                  <em className="ml-3 text-sm">"{session && session.location.name} 
+                    - {forcastData && forcastData.location.name} 
+                    <span className="ml-2">({forcastData && forcastData.location.country.toUpperCase()})</span>
+                    "</em>
+                    <small className="float-right md:float-right sm:float-none">Last Update : {session.location.localtime} </small>
+                </h4>
+                {session.forecast.forecastday && session.forecast.forecastday[0].hour.map((hour, idx)=> (
+
+                    <div  key={idx} hidden={charecterInd(hour.time) !== session.location.localtime.split(' ')[1].toString().split(':')[0]}>
+                      {charecterInd(hour.time) === session.location.localtime.split(' ')[1].toString().split(':')[0] ? (
+                        <div >
+                            <h4 className="sm:mt-2">
+                           
+                              {session && session.location.name} - {session && session.location.country.toUpperCase()} 
+                            </h4>
+                            <div id="container" className="mt-2">
+                              <div id="flip" className="text-4xl font-bold text-white">
+                              <div><small className="text-sm">Temperature</small><div><span className="border p-4 rounded-lg">{hour.temp_c.toString().split('.')[0]}° <small className="text-sm">C</small></span></div></div>
+                              <div><small className="text-sm">Humidity</small><div><span className="border p-4 rounded-lg">{hour.humidity.toString().split('.')[0]}<small className="text-sm">%</small></span></div></div>
+                              <div><small className="text-sm">Feels Like</small><div><span className="border p-4 rounded-lg">{hour.feelslike_c.toString().split('.')[0]}<small className="text-sm">%</small></span></div></div>
+                              </div>                      
+                              </div>
+                            <span className="text-gray-600 text-sm"><strong>{session.forecast.forecastday[0].day.condition.text}</strong> Conditions will continue all day. Wind gusts are up to <strong>{forcastData.forecast.forecastday[0].day.maxwind_mph || ""}</strong> mph</span>
+                          
+                          <br />
+                          <h4 className="text-left mt-3 mb-1 text-sm">Today's Average Weather</h4>
+                          <div className="grid grid-cols-4 gap-4  md:grid-cols-4 md:gap-4 sm:grid-cols-2 sm:gap-6">
+                            <div className="text-left weather-box-layout">
+                              <h4 className="text-ellipsis">Condition</h4>
+                              <div className=" text-center flex">
+                                <img src={session.forecast.forecastday[0].day.condition.icon} width={20}  alt="today weather icon"/>
+                                <strong className="ml-1 text-ellipsis">{session.forecast.forecastday[0].day.condition.text} </strong>
+                                </div>
+                            </div>
+                            <div className="text-left weather-box-layout">
+                              <h4 className="text-ellipsis">Temperature</h4>
+                              <strong>{session.forecast.forecastday[0].day.avgtemp_c}° <small>C</small> </strong>
+                            </div>
+                            <div className="text-left weather-box-layout">
+                              <h4 className="text-ellipsis">Humidity</h4>
+                              <strong>{session.forecast.forecastday[0].day.avghumidity} <small>%</small> </strong>
+                            </div>
+                            <div className="text-left weather-box-layout">
+                              <h4 className="text-ellipsis">Chance Of Rain</h4>
+                              <strong>{session.forecast.forecastday[0].day.daily_chance_of_rain}<small>%</small>  </strong>
+                            </div>
+                           
+                            {/* <small>Today's Average Weather -  {session.forecast.forecastday[0].day.avgtemp_c}° C ,Humidity { session.forecast.forecastday[0].day.avghumidity} ,Rain Chance - {session.forecast.forecastday[0].day.daily_chance_of_rain}%,  </small> */}
+                          </div>
+                        </div>
+                      ) : ""}                      
+
+                    </div>
+                  ))
+                } 
+              </div>
+              <div className="card-background p-3 mt-5 rounded">
+                <h4 className="text-left mb-2">Forecast Day  
+                 {forcastData && forcastData.forecast && forcastData.forecast.forecastday.length === 0 ? "" : (
+                    <span className="ml-2 text-sm desktop-view">(Today's Min Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.mintemp_c}° C</strong> & Max Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.maxtemp_c}° C</strong>)</span>
+                  )} <small className="float-right md:float-right sm:float-none">Last Update : {forcastData.location.localtime || ""}</small></h4>
+                  {/* <br /> */}
+
+                  <div className="mobile-view">
+                  <span className="ml-2 text-sm ">(Today's Min Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.mintemp_c}° C</strong> & Max Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.maxtemp_c}° C</strong>)</span>
+                  </div>
+
+                <div className="	border-t">
+                  {forcastData && forcastData.forecast && forcastData.forecast.forecastday.length === 0 ? "Not Found" : (
+                    <div className="text-left table-overflow">
+                
+
+                      <table className="w-full text-sm text-left text-gray-700 dark:text-gray-400"> 
+                          <thead>
+                          <tr>
+                              <th scope="col" className="py-2 px-1" > Condition</th>
+                              <th scope="col" className="py-2 px-1">Date & Time</th>
+                              <th scope="col" className="py-2 px-1">Temperature</th>
+                              <th scope="col" className="py-2 px-1">Humidity</th>
+                              <th scope="col" className="py-2 px-1">Feels Like</th>
+                              <th scope="col" className="py-2 px-1">Chance Of Rain</th>
+                              <th scope="col" className="py-2 px-1">Wind</th>
+                          </tr>
+                          </thead>
+                          <tbody >
+                          {forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].hour.map((hour, ind)=> (
+
+                                      <tr  key={ind} 
+                                      className={`${charecterInd(hour.time) === currentDate.toString() ? "activeTime" : ""}`}
+                                      >
+                                          {hour.condition ? ( <td className="py-1 px-1 flex">
+                                                <img src={hour.condition.icon} alt="condition" width={20} /> {hour.condition.text}</td> ) : ""}
+                                          <td className="py-1 px-1">{hour.time}</td>
+                                          <td className="py-1 px-1">{hour.temp_c}° C</td>
+                                          <td className="py-1 px-1">{hour.humidity} %</td>
+                                          <td className="py-1 px-1">{hour.feelslike_c}°</td>
+                                          <td className="py-1 px-1">{hour.chance_of_rain} %</td>
+                                          <td className="py-1 px-1">{hour.wind_mph} mph</td>                                                                       
+                                      </tr>
+                                  ))
+                              } 
+                          </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+        </div>
+        <div className="ml-10 w-4/12 md:w-4/12 desktop-view shodow ">
+         <div className=" rounded">
+             <img className="rounded px-3"  src={sideImage} alt="weather" />
+           </div>
+       </div>
+   
+        
+      </div>
+         ))}
 
      
      </>

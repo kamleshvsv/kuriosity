@@ -92,7 +92,6 @@ export function WeatherDashboard () {
 
     useOutsideClick(handleRef);
 
-
     const getLocation = async (value) => {
         await fetch(`${LocationUrl}?query=${value}&language=en-us`)
       .then(res => res.json())
@@ -113,8 +112,8 @@ const charecterInd = (data) => {
    } else {
     final.push(t)
    }
+   console.log(final,)
     return final.toString();
-  
   } 
 
 
