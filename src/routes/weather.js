@@ -1,14 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import apiService from './../service/apiService';
-import sideImage from './../OKYJ1L0.jpg'
+import sideImage from './../OKYJ1L0.jpg';
+import { DownloadTableExcel } from "react-export-table-to-excel";
+
+
 export default function SeprateWeather() {
   const [currentDate, setCurrentDate] = useState('')
   const [forcastData, setForcastData] = useState([])
   const [sessionData, setSessionData] = useState([])
+
   const params = useParams()
   const navigate = useNavigate()
   const [error, showError] = useState(false)
+
+  const tableRef = useRef(null);
+  const mainRef = useRef(null);
+  
+
+  // const fileType = "applicaton/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+  // const fileExtention = ".xlsx";
+
 
   useEffect(()=> {
     let date = new Date()
@@ -51,6 +63,15 @@ export default function SeprateWeather() {
    
   },[])
 
+  //export excell data
+  // const exportToExcel = async (excellData, fileName) => {
+  //   console.log(excellData.location)
+  //   const ws = XLSX.utils.json_to_sheet(excellData);
+  //   const wb = {Sheets : {'data' : ws}, SheetName : ['data']};
+  //   const buffer = XLSX.write (wb, {bookType : 'xlsx', type:"array"});
+  //   const data =  new Blob([buffer], {type : fileType});
+  //   FileSaver.saveAs(data, fileName + fileExtention)
+  // }
 
 
 
@@ -225,6 +246,13 @@ const getRecentSearchHistory = async (name) => {
                     <span className="ml-2 text-sm desktop-view">(Today's Min Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.mintemp_c}° C</strong> & Max Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.maxtemp_c}° C</strong>)</span>
                   )} <small className="float-right md:float-right sm:float-none">Last Update : {forcastData.location.localtime || ""}</small></h4>
                   {/* <br /> */}
+                  <DownloadTableExcel className="float-right"
+        filename={forcastData.location.name}
+        sheet={forcastData.location.name}
+        currentTableRef={mainRef.current}
+      >
+        <i class="fa fa-file-excel-o" aria-hidden="true"></i> 
+      </DownloadTableExcel>
 
                   <div className="mobile-view">
                   <span className="ml-2 text-sm ">(Today's Min Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.mintemp_c}° C</strong> & Max Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.maxtemp_c}° C</strong>)</span>
@@ -235,7 +263,7 @@ const getRecentSearchHistory = async (name) => {
                     <div className="text-left table-overflow">
                 
 
-                      <table className="w-full text-sm text-left text-gray-700 dark:text-gray-400"> 
+                      <table className="w-full text-sm text-left text-gray-700 dark:text-gray-400" ref={mainRef}> 
                           <thead>
                           <tr>
                               <th scope="col" className="py-2 px-1" > Condition</th>
@@ -283,10 +311,12 @@ const getRecentSearchHistory = async (name) => {
         </div>
       </div>
       <h2 className="text-left text-white p-10">Recent Search History</h2>
+     
       {sessionData.map((session, i)=> (
-      <div className="flex px-10 md:px-10 sm:px-6 mt-2 border-solid border-2 border-indigo-600 ">
+      <div className="flex px-10 md:px-10 sm:px-6 mt-2 ">
         <div key={i} className="w-8/12 md:w-8/12 sm:w-full" style={{margin:"5px"}}>
         < >
+             
               <div className="card-background p-3 rounded"  style={{backgroundImage : `url(${session.forecast.forecastday[0].day.condition.icon})`, backgroundPosition:"center",backgroundSize:"contain", backgroundRepeat:"no-repeat", backgroundPositionX:"right"}}>
                 <h4 className="text-left">Current Weather   
                   <em className="ml-3 text-sm">"{session && session.location.name} 
@@ -351,6 +381,13 @@ const getRecentSearchHistory = async (name) => {
                     <span className="ml-2 text-sm desktop-view">(Today's Min Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.mintemp_c}° C</strong> & Max Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.maxtemp_c}° C</strong>)</span>
                   )} <small className="float-right md:float-right sm:float-none">Last Update : {forcastData.location.localtime || ""}</small></h4>
                   {/* <br /> */}
+                  <DownloadTableExcel className="float-right"
+        filename={session.location.name}
+        sheet={session.location.name}
+        currentTableRef={tableRef.current}
+      >
+        <i class="fa fa-file-excel-o" aria-hidden="true"></i> 
+      </DownloadTableExcel>
 
                   <div className="mobile-view">
                   <span className="ml-2 text-sm ">(Today's Min Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.mintemp_c}° C</strong> & Max Temp <strong>{forcastData.forecast.forecastday && forcastData.forecast.forecastday[0].day.maxtemp_c}° C</strong>)</span>
@@ -359,9 +396,10 @@ const getRecentSearchHistory = async (name) => {
                 <div className="	border-t">
                   {forcastData && forcastData.forecast && forcastData.forecast.forecastday.length === 0 ? "Not Found" : (
                     <div className="text-left table-overflow">
-                
+               
+           
 
-                      <table className="w-full text-sm text-left text-gray-700 dark:text-gray-400"> 
+                      <table className="w-full text-sm text-left text-gray-700 dark:text-gray-400" ref={tableRef}> 
                           <thead>
                           <tr>
                               <th scope="col" className="py-2 px-1" > Condition</th>
@@ -404,11 +442,12 @@ const getRecentSearchHistory = async (name) => {
            </div>
        </div>
    
+                              
         
       </div>
          ))}
 
-     
+
      </>
     );
   }
